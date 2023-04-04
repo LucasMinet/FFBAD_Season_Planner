@@ -2,8 +2,6 @@
 import bs4 as bs
 import urllib.request
 import pandas as pd
-import pycountry
-import pycountry_convert as pc
 import numpy as np
 
 from simulation import *
