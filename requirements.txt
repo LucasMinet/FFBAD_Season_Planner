@@ -1,0 +1,7 @@
+streamlit
+beautifulsoup4
+numpy
+pandas
+plotly
+beautifulsoup4
+urllib
