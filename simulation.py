@@ -54,9 +54,14 @@ def get_viz_settings(df_ranking_over_weeks,year):
 
     for index, tournament_name in enumerate(df_ranking_over_weeks['Tournament']):
         if tournament_name=='No Tournament':
-            markers_colors.append('lightskyblue')
-            markers_sizes.append(6)
-            markers_shapes.append('circle')
+            if year == '2022':
+                markers_colors.append('grey')
+                markers_sizes.append(6)
+                markers_shapes.append('circle')
+            elif year == '2023':
+                markers_colors.append('lightskyblue')
+                markers_sizes.append(6)
+                markers_shapes.append('circle')
         else:
             details_tournament = df_tournaments_list[df_tournaments_list['Tournament']==tournament_name]
             #Tournoi par équipe:
@@ -252,19 +257,19 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
     return df_week_ranking
 
 #Fonction qui va renvoyer une figure plotly pour la visualisation de l'évolution du ranking
-def get_viz_ranking(df_week_ranking):
-    markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking,'2022')
+def get_viz_ranking(df_week_ranking,year,name):
+    markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking,year)
 
     custom_data = np.stack((df_week_ranking['Tournament'],df_week_ranking['Result'],df_week_ranking['Points Earned'],df_week_ranking['Estimated Ranking'],df_week_ranking['Points to Top']), axis=-1)
 
     fig = go.Figure(data=go.Scatter(x=df_week_ranking['Week'],
                                 y=df_week_ranking['Total Ranking Points'],
                                 customdata=custom_data,
-                                name="2022",
+                                name=name,
                                 marker_color=markers_colors,
                                 marker_size=markers_sizes,
                                 marker_symbol = markers_shapes,
-                                marker_opacity = 1,
+                                marker_opacity = 0.8,
                                 line_color="rgba(182, 208, 226,0.4)",
                                 fill="tozeroy",
                                 fillcolor="rgba(182, 208, 226,0.2)"))
@@ -336,22 +341,22 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
 
 
 #Fonction qui va ajouter une trace à la figure plotly pour la visualisation de l'évolution du ranking avec la simulation
-def get_viz_ranking_simulated(df_week_ranking_simulated,fig):
-    markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking_simulated,'2023')
+def get_viz_ranking_simulated(df_week_ranking_simulated,fig,year,name):
+    markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking_simulated,year)
 
     custom_data_simulated = np.stack((df_week_ranking_simulated['Tournament'],df_week_ranking_simulated['Result'],df_week_ranking_simulated['Points Earned'],df_week_ranking_simulated['Estimated Ranking'],df_week_ranking_simulated['Points to Top']), axis=-1)
 
     fig.add_trace(go.Scatter(x=df_week_ranking_simulated['Week'],
                                     y=df_week_ranking_simulated['Total Ranking Points'],
                                     customdata=custom_data_simulated,
-                                    name="2023 Simulation",
+                                    name=name,
                                     marker_color=markers_colors,
                                     marker_size=markers_sizes,
                                     marker_symbol = markers_shapes,
                                     marker_opacity = 1,
-                                    line_color="rgba(155,48,255, 0.4)",
+                                    #line_color="rgba(155,48,255, 0.4)",
                                     fill="tozeroy",
-                                    fillcolor="rgba(182, 208, 226,0.2)"))
+                                    fillcolor="rgba(182, 208, 226,0.1)"))
 
     fig.update_traces(mode="markers+lines",
                         hovertemplate = '<b>Week %{x}:</b>'+
