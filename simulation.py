@@ -6,8 +6,8 @@ import plotly.graph_objects as go
 
 
 #On initialise les dataframe avec la liste des tournois
-df_2022_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2022_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES.xlsx")
-df_2023_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2023_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES.xlsx")
+df_2022_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2022_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
+df_2023_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2023_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
 
 #Dataframe avec estimation de classement
 df_estimation_ranking_all = pd.read_excel("./averaged_points_ranking_all.xlsx",['men_singles','women_singles','men_doubles','women_doubles','mixed_doubles'])
@@ -18,7 +18,29 @@ def estimate_ranking(total_points,type_ranking):
     closest_value = min(list_ranking, key=lambda x:abs(x-total_points))
     ranking = (np.where(list_ranking == closest_value)[0]+1)[0]
 
-    return str(max(1,ranking-2))+"-"+str(ranking+2)
+    if ranking<=10:
+        distance_to_rank = round(list_ranking[0]-total_points)
+        distance_to_rank = 'Gap to Top 1 : '+str(distance_to_rank)+' pts'
+    elif ranking>10 and ranking<=20:
+        distance_to_rank = round(list_ranking[9]-total_points)
+        distance_to_rank = 'Gap to Top 10 : '+str(distance_to_rank)+' pts'
+    elif ranking>20 and ranking<=30:
+        distance_to_rank = round(list_ranking[19]-total_points)
+        distance_to_rank = 'Gap to Top 20 : '+str(distance_to_rank)+' pts'
+    elif ranking>30 and ranking<=50:
+        distance_to_rank = round(list_ranking[29]-total_points)
+        distance_to_rank = 'Gap to Top 30 : '+str(distance_to_rank)+' pts'
+    elif ranking>50 and ranking<=70:
+        distance_to_rank = round(list_ranking[49]-total_points)
+        distance_to_rank = 'Gap to Top 50 : '+str(distance_to_rank)+' pts'
+    elif ranking>70 and ranking<=100:
+        distance_to_rank = round(list_ranking[69]-total_points)
+        distance_to_rank = 'Gap to Top 70 : '+str(distance_to_rank)+' pts'
+    elif ranking>100:
+        distance_to_rank = round(list_ranking[99]-total_points)
+        distance_to_rank = 'Gap to Top 100 : '+str(distance_to_rank)+' pts'
+
+    return str(max(1,ranking-2))+"-"+str(ranking+2), distance_to_rank
 
 #Fonction qui va renvoyer une liste de couleurs, une liste de tailles et une liste de formes pour les markers 
 def get_viz_settings(df_ranking_over_weeks,year):
@@ -47,10 +69,10 @@ def get_viz_settings(df_ranking_over_weeks,year):
                     markers_colors.append('gold')
                     markers_shapes.append('star')
                 #Grade 2 tournaments
-                elif details_tournament['1'].iloc[0] in [12000,11000]:
+                elif details_tournament['1'].iloc[0] in [12000,11000,9200]:
                     markers_colors.append('gold')
                     markers_shapes.append('hexagon')
-                elif details_tournament['1'].iloc[0] in [9200,7000,5500]:
+                elif details_tournament['1'].iloc[0] in [7000,5500]:
                     markers_colors.append('lightgrey')
                     markers_shapes.append('hexagon')
                 #Grade 3 tournaments
@@ -77,8 +99,33 @@ def get_viz_settings(df_ranking_over_weeks,year):
 
     return markers_colors, markers_sizes, markers_shapes
 
+#Fonction qui va renvoyer une liste du diminutif des catégories de tournois
+def get_short_name_categories(df_tournaments_list):
+    short_name_categories = []
+    for i in range(len(df_tournaments_list)):
+        if df_tournaments_list['Category'].iloc[i]=='HSBC BWF World Tour Super 1000':
+            short_name_categories.append("S1000")
+        elif df_tournaments_list['Category'].iloc[i]=='HSBC BWF World Tour Super 750':
+            short_name_categories.append("S750")
+        elif df_tournaments_list['Category'].iloc[i]=='HSBC BWF World Tour Super 500':
+            short_name_categories.append("S500")
+        elif df_tournaments_list['Category'].iloc[i]=='HSBC BWF World Tour Super 300':
+            short_name_categories.append("S300")
+        elif df_tournaments_list['Category'].iloc[i]=='BWF Tour Super 100':
+            short_name_categories.append("S100")
+        elif df_tournaments_list['Category'].iloc[i]=='International Challenge':
+            short_name_categories.append("IC")
+        elif df_tournaments_list['Category'].iloc[i]=='International Series':
+            short_name_categories.append("IS")
+        elif df_tournaments_list['Category'].iloc[i]=='Future Series':
+            short_name_categories.append("FS")
+        else:
+            short_name_categories.append("")
 
 
+    return short_name_categories
+        
+        
 #Fonction qui va catégoriser les tournois
 def get_category_tournaments(df_player_tournaments_results,df_tournaments_list):
     
@@ -176,18 +223,20 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
     #On va calculer le nombre de points au fur et à mesure des semaines 
     points = [0]*52
 
-    df_week_ranking = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking'])
+    df_week_ranking = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking','Points to Top'])
 
     for week in range(1,min_week+1):
         points[week-1] = total_points
-        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_ranking(points[week-1],type_ranking)]
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
             
     for week in range(min_week+1,max_week+2):
         df_player_tournaments_results_simulated = df_player_tournaments_results[df_player_tournaments_results['Week']>=week]
         df_player_tournaments_results_simulated = get_world_ranking(df_player_tournaments_results_simulated)
         total_points = df_player_tournaments_results_simulated.loc[df_player_tournaments_results_simulated['Calculation']==True,'Points'].sum()
         points[week-1] = total_points
-        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_ranking(points[week-1],type_ranking)]
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
         
         df_week = df_player_tournaments_results[df_player_tournaments_results["Week"]==week-1]
         if len(df_week)>0:
@@ -197,7 +246,8 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
             
     for week in range(max_week+2,53):
         points[week-1] = 0
-        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_ranking(points[week-1],type_ranking)]
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
 
     return df_week_ranking
 
@@ -205,12 +255,12 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
 def get_viz_ranking(df_week_ranking):
     markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking,'2022')
 
-    custom_data = np.stack((df_week_ranking['Tournament'],df_week_ranking['Result'],df_week_ranking['Points Earned'],df_week_ranking['Estimated Ranking']), axis=-1)
+    custom_data = np.stack((df_week_ranking['Tournament'],df_week_ranking['Result'],df_week_ranking['Points Earned'],df_week_ranking['Estimated Ranking'],df_week_ranking['Points to Top']), axis=-1)
 
     fig = go.Figure(data=go.Scatter(x=df_week_ranking['Week'],
                                 y=df_week_ranking['Total Ranking Points'],
                                 customdata=custom_data,
-                                name="2022 Ranking",
+                                name="2022",
                                 marker_color=markers_colors,
                                 marker_size=markers_sizes,
                                 marker_symbol = markers_shapes,
@@ -229,6 +279,7 @@ def get_viz_ranking(df_week_ranking):
                     hovertemplate = '<b>Week %{x}:</b>'+
                         '<br><b>Total Ranking Points</b>: %{y}'+
                         '<br><b>Estimated Ranking: %{customdata[3]}</b>'+
+                        '<br><b>%{customdata[4]}</b>'+
                         '<br>'+
                         '<br>Tournament: %{customdata[0]}'+
                         '<br>Result: %{customdata[1]}'+
@@ -251,12 +302,13 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
     #On va calculer le nombre de points au fur et à mesure des semaines 
     points = [0]*52
 
-    df_week_ranking_simulated = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking'])
+    df_week_ranking_simulated = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking','Points to Top'])
 
     #On a le même nombre de points que sans les tournois ajoutés jusqu'à la semaine du premier tournoi ajouté
     for week in range(1,min_week+1):
         points[week-1] = df_week_ranking['Total Ranking Points'].iloc[week-1]
-        df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_ranking(points[week-1],type_ranking)]
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
 
     #On simule chaque semaine et on récupère le nombre de points après chaque semaine
     for week in range(min_week+1,53):
@@ -264,7 +316,8 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
         df_player_tournaments_results_simulated = get_world_ranking(df_player_tournaments_results_simulated)
         total_points = df_player_tournaments_results_simulated.loc[df_player_tournaments_results_simulated['Calculation']==True,'Points'].sum()
         points[week-1] = total_points
-        df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_ranking(points[week-1],type_ranking)]
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
         
         df_week = df_player_tournaments_results_simulated[df_player_tournaments_results_simulated["Week"]==week-1]
         #On récupère le nom du tournois ainsi que les points remportés et le résultat
@@ -286,12 +339,12 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
 def get_viz_ranking_simulated(df_week_ranking_simulated,fig):
     markers_colors, markers_sizes, markers_shapes = get_viz_settings(df_week_ranking_simulated,'2023')
 
-    custom_data_simulated = np.stack((df_week_ranking_simulated['Tournament'],df_week_ranking_simulated['Result'],df_week_ranking_simulated['Points Earned'],df_week_ranking_simulated['Estimated Ranking']), axis=-1)
+    custom_data_simulated = np.stack((df_week_ranking_simulated['Tournament'],df_week_ranking_simulated['Result'],df_week_ranking_simulated['Points Earned'],df_week_ranking_simulated['Estimated Ranking'],df_week_ranking_simulated['Points to Top']), axis=-1)
 
     fig.add_trace(go.Scatter(x=df_week_ranking_simulated['Week'],
                                     y=df_week_ranking_simulated['Total Ranking Points'],
                                     customdata=custom_data_simulated,
-                                    name="2023 Simulated Ranking",
+                                    name="2023 Simulation",
                                     marker_color=markers_colors,
                                     marker_size=markers_sizes,
                                     marker_symbol = markers_shapes,
@@ -304,6 +357,7 @@ def get_viz_ranking_simulated(df_week_ranking_simulated,fig):
                         hovertemplate = '<b>Week %{x}:</b>'+
                         '<br><b>Total Ranking Points</b>: %{y}'+
                         '<br><b>Estimated Ranking: %{customdata[3]}</b>'+
+                        '<br><b>%{customdata[4]}</b>'+
                         '<br>'+
                         '<br>Tournament: %{customdata[0]}'+
                         '<br>Result: %{customdata[1]}'+

@@ -66,8 +66,9 @@ with st.sidebar:
     else:
         df_options_weeks = st.session_state['df_options_weeks']
     
+    #options_weeks = 
     selected_week_simulation = st.selectbox("Choose Starting Week for Simulation",options=df_options_weeks['options_weeks'])
-
+    #["Week "+str(df_2023_tournaments_list_filtered['Week'].iloc[i]) +" -> "+str(df_2023_tournaments_list_filtered['Tournament'].iloc[i]) for i in range(len(df_2023_tournaments_list_filtered))]
 
 
     #On crée un boutton qui va permettre de débuter la simulation
@@ -133,10 +134,9 @@ if button_simulation and st.session_state['launch_simulation']==False:
     st.session_state['df_ranking_over_weeks']=get_ranking_over_weeks(df_player_tournament_results,type_ranking)
 
     #Si la semaine de départ est différente de la semaine 1:
-    if selected_week_simulation != df_options_weeks['weeks_ids'].iloc[0]:
+    if selected_week_simulation != df_options_weeks['options_weeks'].iloc[0]:
         details_week = df_options_weeks[df_options_weeks['options_weeks']==selected_week_simulation]
         week_id = details_week['weeks_ids'].iloc[0]
-        week_number = details_week.index[0]+1
         if type_ranking == "men_singles":
             df_player_tournament_results_from_starting_week=get_tournament_list_men_singles(playerId,selected_players,week_id)
         elif type_ranking == "women_singles":
@@ -148,15 +148,27 @@ if button_simulation and st.session_state['launch_simulation']==False:
         elif type_ranking == "mixed_doubles":
             df_player_tournament_results_from_starting_week = get_tournament_list_mixed_doubles(playerId,selected_players.split(" / ")[0],selected_players.split(" / ")[1],week_id)
         #On sauvegarde tout en cache
-        st.session_state['df_player_tournament_results_from_starting_week'] = df_player_tournament_results_from_starting_week
-        st.session_state['week_number'] = week_number
-        st.session_state['week_id'] = week_id
-    else:
-        #On sauvegarde tout en cache
-        st.session_state['df_player_tournament_results_from_starting_week'] = df_player_tournament_results
-        st.session_state['week_number'] = 1
-        st.session_state['week_id'] = df_options_weeks['weeks_ids'].iloc[0] #id première semaine
+        df_player_tournament_results_from_starting_week = df_player_tournament_results_from_starting_week[df_player_tournament_results_from_starting_week['Year']=='2023']
         
+        if len(df_player_tournament_results_from_starting_week)>0:
+            df_player_tournament_results_from_starting_week["Team"]=0
+            df_player_tournament_results_from_starting_week["Continental Games"]=0
+            df_player_tournament_results_from_starting_week["Continental Championships"]=0
+            df_player_tournament_results_from_starting_week["World Championships"]=0
+        
+            st.session_state['df_tournament_simulated'] = df_player_tournament_results_from_starting_week
+            st.session_state['week_id'] = week_id
+            #On récupère l'évolution du classement sur chaque semaine
+            df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
+            print(df_player_tournament_results_from_starting_week.info())
+            df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_player_tournament_results_from_starting_week,df_ranking_over_weeks,type_ranking)
+            #On sauvegarde l'état
+            st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated
+        #On crée la figure initiale pour 2022
+        df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
+        figure_ranking_chart = get_viz_ranking(df_ranking_over_weeks)
+        st.session_state['figure_ranking_chart'] = figure_ranking_chart
+
 
 # #On ajoute le tournois et on fait la simulation jusqu'à obtenir le graphique
 def add_simulated_tournament():
@@ -196,12 +208,14 @@ if st.session_state['launch_simulation']==True:
     #Liste déroulante avec tous les tournois de 2023
     if len(filter_tournaments)>0:
         df_2023_tournaments_list_filtered = df_2023_tournaments_list_filtered[df_2023_tournaments_list_filtered['Category'].isin(filter_tournaments)]
-        options = ["Week "+str(df_2023_tournaments_list_filtered['Week'].iloc[i]) +" -> "+str(df_2023_tournaments_list_filtered['Tournament'].iloc[i]) for i in range(len(df_2023_tournaments_list_filtered))]
+        short_name_categories = get_short_name_categories(df_2023_tournaments_list_filtered)
+        options = ["Week "+str(df_2023_tournaments_list_filtered['Week'].iloc[i]) +" -> "+str(df_2023_tournaments_list_filtered['Tournament'].iloc[i])+" -> "+short_name_categories[i] for i in range(len(df_2023_tournaments_list_filtered))]
         selected_tournament = st.selectbox("Add a tournament",options=options)
         if len(options)>0:
             tournament_name = selected_tournament.split(' -> ')[1]
     else:
-        options = ["Week "+str(df_2023_tournaments_list_filtered['Week'].iloc[i]) +" -> "+str(df_2023_tournaments_list_filtered['Tournament'].iloc[i]) for i in range(len(df_2023_tournaments_list_filtered))]
+        short_name_categories = get_short_name_categories(df_2023_tournaments_list_filtered)
+        options = ["Week "+str(df_2023_tournaments_list_filtered['Week'].iloc[i]) +" -> "+str(df_2023_tournaments_list_filtered['Tournament'].iloc[i])+" -> "+short_name_categories[i] for i in range(len(df_2023_tournaments_list_filtered))]
         selected_tournament = st.selectbox("Add a tournament",options=options)
         if len(options)>0:
             tournament_name = selected_tournament.split(' -> ')[1]
@@ -218,6 +232,9 @@ if st.session_state['launch_simulation']==True:
 
         #Bouton pour ajouter le tournoi à la simulation
         button_add_tournament = st.button("Add Tournament",on_click=add_simulated_tournament)
+
+    with st.expander("Graph Details"):
+        st.image("./assets/legend_ranking_plot_dark.png")
 
     #On affiche le graphique
 
@@ -289,13 +306,18 @@ def update_simulated_tournament(tournament_to_update):
     #On sauvegarde l'état
     st.session_state['df_tournament_simulated'] = df_tournament_simulated
     st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated
+    
 
 if len(st.session_state['df_tournament_simulated'])>0:
     with st.expander("Update Simulation"):
         df_tournament_simulated = st.session_state['df_tournament_simulated']
+        df_ranking_over_weeks_simulated = st.session_state["df_ranking_over_weeks_simulated"]
+        #Bouton de téléchargement de la simulation
+        button_download_simulation = st.download_button(label="Download Current Simulation",data=df_ranking_over_weeks_simulated.to_csv(index=False),file_name='Simulation '+selected_players+'.csv',mime='text/csv')
         st.dataframe(df_tournament_simulated.iloc[:,1:5],use_container_width=True)
         #Choix du tournoi à modifier
         tournament_to_update = st.selectbox(label="Update Tournament",options=df_tournament_simulated['Tournament'])
+        
         cols1, cols2 = st.columns(2)
         with cols1:
             st.button("Delete Tournament",on_click=delete_simulated_tournament,args=[tournament_to_update])
@@ -312,3 +334,4 @@ if len(st.session_state['df_tournament_simulated'])>0:
             st.button("Modify Results",on_click=update_simulated_tournament,args=[tournament_to_update])
 
             
+#st.write(st.session_state)
