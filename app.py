@@ -83,8 +83,8 @@ with st.sidebar:
         st.session_state['df_ranking_over_weeks_simulated']=None
         st.session_state['figure_ranking_chart']=None
         st.session_state['figure_ranking_chart_simulated']=None
-        st.session_state['df_tournament_simulated'] = pd.DataFrame(columns=["Year","Week","Tournament","Result","Points","Calculation","Matches","Team","Continental Games","Continental Championships","World Championships"])
-        st.session_state['previous_df_tournament_simulated'] = pd.DataFrame(columns=["Year","Week","Tournament","Result","Points","Calculation","Matches","Team","Continental Games","Continental Championships","World Championships"])
+        st.session_state['df_tournament_simulated'] = pd.DataFrame(columns=["Year","Week","Tournament","Result","Points","Calculation","Matches","Team","Matching Id","Continental Games","Continental Championships","World Championships"])
+        st.session_state['previous_df_tournament_simulated'] = pd.DataFrame(columns=["Year","Week","Tournament","Result","Points","Calculation","Matches","Team","Matching Id","Continental Games","Continental Championships","World Championships"])
 
 
 tab1, tab2, tab3 = st.tabs(["Ranking Simulation", "Players Comparisons", "Tournaments Calendar"])
@@ -154,6 +154,7 @@ with tab1:
             df_player_tournament_results_from_starting_week = df_player_tournament_results_from_starting_week[df_player_tournament_results_from_starting_week['Year']=='2023']
             
             if len(df_player_tournament_results_from_starting_week)>0:
+                df_player_tournament_results_from_starting_week["Matching Id"]=0
                 df_player_tournament_results_from_starting_week["Team"]=0
                 df_player_tournament_results_from_starting_week["Continental Games"]=0
                 df_player_tournament_results_from_starting_week["Continental Championships"]=0
@@ -182,12 +183,14 @@ with tab1:
             result = "1"
             points_earned = points_earned_tournament
             tournament_week = details_tournament['Week'].values[0]
-            df_tournament_simulated.loc[len(df_tournament_simulated)]= [2023,int(tournament_week),tournament_name,result,points_earned,False,"",0,0,0,0]
+            matching_id = details_tournament['Matching Id'].values[0]
+            df_tournament_simulated.loc[len(df_tournament_simulated)]= [2023,int(tournament_week),tournament_name,result,points_earned,False,"",0,matching_id,0,0,0]
 
         else:
             points_earned = details_tournament[result_tournament].values[0]
             tournament_week = details_tournament['Week'].values[0]
-            df_tournament_simulated.loc[len(df_tournament_simulated)]= [2023,int(tournament_week),tournament_name,result_tournament,points_earned,False,"",0,0,0,0]
+            matching_id = details_tournament['Matching Id'].values[0]
+            df_tournament_simulated.loc[len(df_tournament_simulated)]= [2023,int(tournament_week),tournament_name,result_tournament,points_earned,False,"",0,matching_id,0,0,0]
 
         #On récupère l'évolution du classement sur chaque semaine
         df_player_tournament_results = st.session_state['df_player_tournament_results']

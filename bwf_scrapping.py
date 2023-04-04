@@ -6,6 +6,8 @@ import pycountry
 import pycountry_convert as pc
 import numpy as np
 
+from simulation import *
+
 
 def get_tournament_list_men_singles(playerId,player_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
@@ -27,8 +29,18 @@ def get_tournament_list_men_singles(playerId,player_name,week_id):
                     #0: Tournament, 1: Week, 2: Result, 3: Points, 4: Matches 5: Used for calculation
                     link_to_matchs = cols[4].find('a').get('href')
                     used_for_calculation = len(cols[5].find_all('img'))>=1
+                    
+                    year = cols[1].text.strip().split('-')[0]
+                    week = cols[1].text.strip().split('-')[1]
+                    tournament_name = cols[0].text.strip()
+                    if year == '2022':
+                        details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+                    elif year == '2023':
+                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
 
-                    player_tournaments_results.append([cols[1].text.strip().split('-')[0],cols[1].text.strip().split('-')[1],cols[0].text.strip(),cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
+                    player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
     df_player_tournaments_results = pd.DataFrame(player_tournaments_results,columns=['Year','Week','Tournament','Result','Points','Calculation','Matches'])
 
@@ -60,7 +72,17 @@ def get_tournament_list_women_singles(playerId,player_name,week_id):
                     link_to_matchs = cols[4].find('a').get('href')
                     used_for_calculation = len(cols[5].find_all('img'))>=1
 
-                    player_tournaments_results.append([cols[1].text.strip().split('-')[0],cols[1].text.strip().split('-')[1],cols[0].text.strip(),cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
+                    year = cols[1].text.strip().split('-')[0]
+                    week = cols[1].text.strip().split('-')[1]
+                    tournament_name = cols[0].text.strip()
+                    if year == '2022':
+                        details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+                    elif year == '2023':
+                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+
+                    player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
     df_player_tournaments_results = pd.DataFrame(player_tournaments_results,columns=['Year','Week','Tournament','Result','Points','Calculation','Matches'])
 
@@ -93,7 +115,17 @@ def get_tournament_list_men_doubles(playerId,player_name,player_partner_name,wee
                     link_to_matchs = cols[4].find('a').get('href')
                     used_for_calculation = len(cols[5].find_all('img'))>=1
 
-                    player_tournaments_results.append([cols[1].text.strip().split('-')[0],cols[1].text.strip().split('-')[1],cols[0].text.strip(),cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
+                    year = cols[1].text.strip().split('-')[0]
+                    week = cols[1].text.strip().split('-')[1]
+                    tournament_name = cols[0].text.strip()
+                    if year == '2022':
+                        details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+                    elif year == '2023':
+                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+
+                    player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
     df_player_tournaments_results = pd.DataFrame(player_tournaments_results,columns=['Year','Week','Tournament','Result','Points','Calculation','Matches'])
     
@@ -125,7 +157,17 @@ def get_tournament_list_women_doubles(playerId,player_name,player_partner_name,w
                     link_to_matchs = cols[4].find('a').get('href')
                     used_for_calculation = len(cols[5].find_all('img'))>=1
 
-                    player_tournaments_results.append([cols[1].text.strip().split('-')[0],cols[1].text.strip().split('-')[1],cols[0].text.strip(),cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
+                    year = cols[1].text.strip().split('-')[0]
+                    week = cols[1].text.strip().split('-')[1]
+                    tournament_name = cols[0].text.strip()
+                    if year == '2022':
+                        details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+                    elif year == '2023':
+                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+
+                    player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
     df_player_tournaments_results = pd.DataFrame(player_tournaments_results,columns=['Year','Week','Tournament','Result','Points','Calculation','Matches'])
     
@@ -157,7 +199,17 @@ def get_tournament_list_mixed_doubles(playerId,player_name,player_partner_name,w
                     link_to_matchs = cols[4].find('a').get('href')
                     used_for_calculation = len(cols[5].find_all('img'))>=1
 
-                    player_tournaments_results.append([cols[1].text.strip().split('-')[0],cols[1].text.strip().split('-')[1],cols[0].text.strip(),cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
+                    year = cols[1].text.strip().split('-')[0]
+                    week = cols[1].text.strip().split('-')[1]
+                    tournament_name = cols[0].text.strip()
+                    if year == '2022':
+                        details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+                    elif year == '2023':
+                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                        week = details_tournament['Week'].iloc[0]
+
+                    player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
     df_player_tournaments_results = pd.DataFrame(player_tournaments_results,columns=['Year','Week','Tournament','Result','Points','Calculation','Matches'])
     

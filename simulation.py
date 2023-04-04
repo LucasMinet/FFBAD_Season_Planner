@@ -138,6 +138,7 @@ def get_category_tournaments(df_player_tournaments_results,df_tournaments_list):
         #On regarde si les tournois sont par equipe
         df_tournament_details = df_tournaments_list[df_tournaments_list['Tournament']==df_player_tournaments_results['Tournament'].iloc[i]]
         df_player_tournaments_results.loc[i,'Team'] = df_tournament_details['Team'].values[0]
+        df_player_tournaments_results.loc[i,'Matching Id'] = df_tournament_details['Matching Id'].values[0]
         #On regarde si ce sont des jeux continentaux
         if df_tournament_details['Category'].iloc[0]=='Continental Individual Games' or df_tournament_details['Category'].iloc[0]=='Multi-Sport Games':
             df_player_tournaments_results.loc[i,'Continental Games'] = 1
@@ -174,6 +175,16 @@ def get_world_ranking(df_player_tournaments_results):
     for i in range(1,len(df_player_tournaments_results)):
         if len(df_tournaments_for_calculation)<10:
             df_tournaments_for_calculation = pd.concat([df_tournaments_for_calculation,df_player_tournaments_results.iloc[i:i+1]])
+            #On regarde si un tournoi a été rejoué avant 52 semaines
+            matching_id = df_player_tournaments_results['Matching Id'].iloc[i:i+1].values[0]
+            if matching_id!=0 and df_tournaments_for_calculation['Matching Id'].value_counts()[matching_id]>1:
+                #On garde le plus récent:
+                index_matching_tournament = df_tournaments_for_calculation.index[df_tournaments_for_calculation['Matching Id']==matching_id].tolist()
+                if df_tournaments_for_calculation.loc[index_matching_tournament[0],"Week"]<=df_tournaments_for_calculation.loc[index_matching_tournament[1],"Week"]:
+                    df_tournaments_for_calculation.drop(index_matching_tournament[1], inplace=True)
+                else:
+                    df_tournaments_for_calculation.drop(index_matching_tournament[0], inplace=True)
+
             #On regarde si il y a deux tournois par equipe
             if df_tournaments_for_calculation['Team'].sum()>1:
                 index_team = df_tournaments_for_calculation.index[df_tournaments_for_calculation['Team']==1].tolist()
