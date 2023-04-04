@@ -6,3 +6,4 @@ plotly
 beautifulsoup4
 urllib3
 openpyxl
+lxml
