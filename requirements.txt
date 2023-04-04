@@ -4,4 +4,4 @@ numpy
 pandas
 plotly
 beautifulsoup4
-urllib
+urllib3
