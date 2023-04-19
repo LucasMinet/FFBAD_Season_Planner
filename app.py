@@ -66,7 +66,7 @@ with st.sidebar:
     else:
         df_options_weeks = st.session_state['df_options_weeks']
     
-    options_weeks = ["Week "+str(i+1)+" -> "+df_options_weeks['options_weeks'].values[i] for i in range(len(df_options_weeks['options_weeks']))]
+    options_weeks = ["Week "+str(i+1)+" -> "+df_options_weeks['options_weeks'].values[i] for i in range(len(df_options_weeks['options_weeks'])-1,-1,-1)]
     week_selected = st.selectbox("Choose Starting Week for Simulation",options=options_weeks)
     number_week_simulation = week_selected.split(' -> ')[0].split(' ')[1]
     selected_week_simulation = week_selected.split(' -> ')[1]
@@ -74,6 +74,8 @@ with st.sidebar:
 
     #On crée un boutton qui va permettre de débuter la simulation
     button_simulation = st.button("Start the simulation")
+
+    st.image('./assets/logo-ffbad.png')
 
     if st.session_state['selected_players'] != selected_players or st.session_state['selected_week_simulation'] != selected_week_simulation:
         #Reset l'état de l'apllication lorsqu'on change de simulation
