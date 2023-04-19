@@ -75,7 +75,7 @@ with st.sidebar:
     #On crée un boutton qui va permettre de débuter la simulation
     button_simulation = st.button("Start the simulation")
 
-    st.image('./assets/logo-ffbad.png')
+    st.image('./assets/logo_FFBaD.png',width=120)
 
     if st.session_state['selected_players'] != selected_players or st.session_state['selected_week_simulation'] != selected_week_simulation:
         #Reset l'état de l'apllication lorsqu'on change de simulation
@@ -211,6 +211,7 @@ with tab1:
         #On ne veut pas avoir la possibilité de choisir deux tournois sur la même semaine
         list_week_to_exclude = [df_tournament_simulated['Week'].iloc[i] for i in range(len(df_tournament_simulated))]
         df_2023_tournaments_list_filtered = df_2023_tournaments_list[~df_2023_tournaments_list['Week'].isin(list_week_to_exclude)]
+        df_2023_tournaments_list_filtered = df_2023_tournaments_list_filtered.sort_values(by=['Week'], ascending=True)
         #Multi choix pour filtrer les tournois
         filter_tournaments = st.multiselect("Filter Tournaments",options=df_2023_tournaments_list.sort_values(by=['1'], ascending=False)['Category'].unique())
         #Liste déroulante avec tous les tournois de 2023
@@ -353,6 +354,7 @@ with tab2:
             nb_file = 0
             for uploaded_file in uploaded_files:
                 dataframe_simulation = pd.read_csv(uploaded_file)
+                dataframe_simulation.fillna('', inplace=True)
                 if nb_file == 0:
                     figure_comparisons = go.Figure()
                     figure_comparisons = get_viz_ranking_simulated(dataframe_simulation,figure_comparisons,'2023',uploaded_file.name[:-4])
