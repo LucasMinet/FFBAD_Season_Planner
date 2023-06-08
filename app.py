@@ -213,7 +213,7 @@ with tab1:
         df_2023_tournaments_list_filtered = df_2023_tournaments_list[~df_2023_tournaments_list['Week'].isin(list_week_to_exclude)]
         df_2023_tournaments_list_filtered = df_2023_tournaments_list_filtered.sort_values(by=['Week'], ascending=True)
         #Multi choix pour filtrer les tournois
-        filter_tournaments = st.multiselect("Filter Tournaments",options=df_2023_tournaments_list.sort_values(by=['1'], ascending=False)['Category'].unique())
+        filter_tournaments = st.multiselect("Filter Tournaments",options=df_2023_tournaments_list.sort_values(by=[1], ascending=False)['Category'].unique())
         #Liste déroulante avec tous les tournois de 2023
         if len(filter_tournaments)>0:
             df_2023_tournaments_list_filtered = df_2023_tournaments_list_filtered[df_2023_tournaments_list_filtered['Category'].isin(filter_tournaments)]
@@ -237,7 +237,7 @@ with tab1:
                 points_earned_tournament = st.number_input("Estimated Points Earned",min_value=0,max_value=13000,step=1)
             #Sinon:
             else:
-                result_tournament = st.selectbox("Estimated Results",options=["1","2","3","4","5-6","7-8","9-16","17-32","33-64","65-128","129-256","257-512","513-1024"])
+                result_tournament = st.selectbox("Estimated Results",options=[1,2,3,4,"5-6","7-8","9-16","17-32","33-64","65-128","129-256","257-512","513-1024"])
 
             #Bouton pour ajouter le tournoi à la simulation
             button_add_tournament = st.button("Add Tournament",on_click=add_simulated_tournament)
@@ -371,7 +371,7 @@ with tab3:
     cal_cols1, cal_cols2 = st.columns(2)
     with cal_cols1:
         #Multi choix pour filtrer les tournois par catégorie
-        filter_tournaments_category = st.multiselect("Filter by Category",options=df_2023_tournaments_list.sort_values(by=['1'], ascending=False)['Category'].unique())
+        filter_tournaments_category = st.multiselect("Filter by Category",options=df_2023_tournaments_list.sort_values(by=[1], ascending=False)['Category'].unique())
     with cal_cols2:
         #Multi choix pour filtrer les tournois par continent
         filter_tournaments_continent = st.multiselect("Filter by Continent",options=['Europe','Asia','North America','South America','Oceania','Africa'])

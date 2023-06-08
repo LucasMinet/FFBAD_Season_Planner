@@ -70,18 +70,18 @@ def get_viz_settings(df_ranking_over_weeks,year):
                 markers_shapes.append('hexagram')
             else:
                 #Grade 1 tournaments
-                if details_tournament['1'].iloc[0]==13000:
+                if details_tournament[1].iloc[0]==13000:
                     markers_colors.append('gold')
                     markers_shapes.append('star')
                 #Grade 2 tournaments
-                elif details_tournament['1'].iloc[0] in [12000,11000,9200]:
+                elif details_tournament[1].iloc[0] in [12000,11000,9200]:
                     markers_colors.append('gold')
                     markers_shapes.append('hexagon')
-                elif details_tournament['1'].iloc[0] in [7000,5500]:
+                elif details_tournament[1].iloc[0] in [7000,5500]:
                     markers_colors.append('lightgrey')
                     markers_shapes.append('hexagon')
                 #Grade 3 tournaments
-                elif details_tournament['1'].iloc[0] in [4000,2500,1700]:
+                elif details_tournament[1].iloc[0] in [4000,2500,1700]:
                     markers_colors.append('sandybrown')
                     markers_shapes.append('star-diamond')
 
