@@ -69,6 +69,7 @@ def get_viz_settings(df_ranking_over_weeks,year):
                 markers_colors.append('purple')
                 markers_shapes.append('hexagram')
             else:
+                print(details_tournament)
                 #Grade 1 tournaments
                 if details_tournament[1].iloc[0]==13000:
                     markers_colors.append('gold')
