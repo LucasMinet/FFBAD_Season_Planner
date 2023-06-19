@@ -337,8 +337,7 @@ with tab1:
                     new_points_earned_tournament = st.number_input("New Estimated Points",min_value=0,max_value=13000,step=1)
                 #Sinon:
                 else:
-                    new_estimated_results = st.selectbox("New Estimated Results",options=["1","2","3","4","5-6","7-8","9-16","17-32","33-64","65-128","129-256","257-512","513-1024"])
-
+                    new_estimated_results = st.selectbox("New Estimated Results",options=[1,2,3,4,"5-6","7-8","9-16","17-32","33-64","65-128","129-256","257-512","513-1024"])
                 
                 st.button("Modify Results",on_click=update_simulated_tournament,args=[tournament_to_update])
 
