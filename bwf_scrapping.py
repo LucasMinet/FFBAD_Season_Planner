@@ -31,6 +31,7 @@ def get_tournament_list_men_singles(playerId,player_name,week_id):
                     year = cols[1].text.strip().split('-')[0]
                     week = cols[1].text.strip().split('-')[1]
                     tournament_name = cols[0].text.strip()
+                    print(tournament_name)
                     if year == '2022':
                         details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
                         week = details_tournament['Week'].iloc[0]
