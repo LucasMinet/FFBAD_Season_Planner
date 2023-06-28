@@ -8,7 +8,6 @@ import plotly.graph_objects as go
 #On initialise les dataframe avec la liste des tournois
 df_2022_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2022_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
 df_2023_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2023_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
-print(df_2023_tournaments_list)
 #Dataframe avec estimation de classement
 df_estimation_ranking_all = pd.read_excel("./averaged_points_ranking_all.xlsx",['men_singles','women_singles','men_doubles','women_doubles','mixed_doubles'])
 

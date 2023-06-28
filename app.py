@@ -379,7 +379,6 @@ with tab3:
     if len(filter_tournaments_category)>0 and len(filter_tournaments_continent)==0:
         df_2023_tournaments_list_filtered_calendar = df_2023_tournaments_list[df_2023_tournaments_list['Category'].isin(filter_tournaments_category)]
     elif len(filter_tournaments_continent)>0 and len(filter_tournaments_category)==0:
-        print(type(df_2023_tournaments_list['Continent'].iloc[47]))
         df_2023_tournaments_list_filtered_calendar = df_2023_tournaments_list[df_2023_tournaments_list['Continent'].isin(filter_tournaments_continent+[np.nan])]
     elif len(filter_tournaments_continent)>0 and len(filter_tournaments_category)>0:
         df_2023_tournaments_list_filtered_calendar = df_2023_tournaments_list[(df_2023_tournaments_list['Category'].isin(filter_tournaments_category)) & (df_2023_tournaments_list['Continent'].isin(filter_tournaments_continent+[np.nan]))]

@@ -1,6 +1,6 @@
 #Module qui regroupe l'ensemble des fonctions pour scrapper les infos utiles sur le site BWF Software Tournament
 import bs4 as bs
-import urllib.request
+import requests
 import pandas as pd
 import numpy as np
 
@@ -10,8 +10,10 @@ from simulation import *
 def get_tournament_list_men_singles(playerId,player_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
 
-    source = urllib.request.urlopen(url_player).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_player)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     tables = soup.find_all('table', attrs={'class':'ruler'})
 
@@ -53,8 +55,10 @@ def get_tournament_list_men_singles(playerId,player_name,week_id):
 def get_tournament_list_women_singles(playerId,player_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
 
-    source = urllib.request.urlopen(url_player).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_player)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     tables = soup.find_all('table', attrs={'class':'ruler'})
 
@@ -96,8 +100,10 @@ def get_tournament_list_women_singles(playerId,player_name,week_id):
 def get_tournament_list_men_doubles(playerId,player_name,player_partner_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
 
-    source = urllib.request.urlopen(url_player).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_player)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     tables = soup.find_all('table', attrs={'class':'ruler'})
 
@@ -138,8 +144,10 @@ def get_tournament_list_men_doubles(playerId,player_name,player_partner_name,wee
 def get_tournament_list_women_doubles(playerId,player_name,player_partner_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
 
-    source = urllib.request.urlopen(url_player).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_player)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     tables = soup.find_all('table', attrs={'class':'ruler'})
 
@@ -180,8 +188,10 @@ def get_tournament_list_women_doubles(playerId,player_name,player_partner_name,w
 def get_tournament_list_mixed_doubles(playerId,player_name,player_partner_name,week_id):
     url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+week_id+'&player='+str(playerId)
 
-    source = urllib.request.urlopen(url_player).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_player)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     tables = soup.find_all('table', attrs={'class':'ruler'})
 
@@ -225,8 +235,10 @@ def get_world_ranking_weeks():
 
     df_options_weeks = pd.DataFrame(columns=['options_weeks','weeks_ids'])
 
-    source = urllib.request.urlopen(url_world_ranking).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url_world_ranking)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     ranking_week = soup.find('select')
     weeks = ranking_week.find_all('option')
@@ -246,8 +258,10 @@ def get_race_paris_2024_men_singles(last_week):
 
     url = "https://bwf.tournamentsoftware.com/ranking/category.aspx?id="+last_week+"&category=472&C472FOC=&p=1&ps=100"
 
-    source = urllib.request.urlopen(url).read()
-    soup = bs.BeautifulSoup(source,'lxml')
+    response = requests.get(url)
+    content = response.text
+
+    soup = bs.BeautifulSoup(content, 'html.parser')
 
     table = soup.find('table', attrs={'class':'ruler'})
     table_rows = table.find_all('tr')
@@ -282,8 +296,10 @@ def get_race_paris_2024_men_singles(last_week):
 
         url_player = 'https://bwf.tournamentsoftware.com/ranking/player.aspx?id='+last_week+'&player='+str(playerId)
 
-        source = urllib.request.urlopen(url_player).read()
-        soup = bs.BeautifulSoup(source,'lxml')
+        response = requests.get(url_player)
+        content = response.text
+
+        soup = bs.BeautifulSoup(content, 'html.parser')
 
         tables = soup.find_all('table', attrs={'class':'ruler'})
 
