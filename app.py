@@ -136,7 +136,10 @@ with tab1:
         st.session_state['type_ranking']=type_ranking
         st.session_state['selected_week_simulation'] = selected_week_simulation
         #On récupère l'évolution du classement sur chaque semaine...
-        st.session_state['df_ranking_over_weeks']=get_ranking_over_weeks(df_player_tournament_results,type_ranking)
+        first_week_2023 = df_options_weeks['weeks_ids'].iloc[0]
+        #On récupère le classement mondial
+        df_world_ranking_at_week = get_world_ranking_at_week(first_week_2023,type_ranking)
+        st.session_state['df_ranking_over_weeks']=get_ranking_over_weeks(df_player_tournament_results,type_ranking,df_world_ranking_at_week)
 
         #Si la semaine de départ est différente de la semaine 1:
         if selected_week_simulation != df_options_weeks['options_weeks'].iloc[0]:
@@ -166,7 +169,10 @@ with tab1:
                 st.session_state['week_id'] = week_id
                 #On récupère l'évolution du classement sur chaque semaine
                 df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
-                df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_player_tournament_results_from_starting_week,df_ranking_over_weeks,type_ranking)
+                #On récupère le classement mondial
+                df_world_ranking_at_week = get_world_ranking_at_week(week_id,type_ranking)
+                st.session_state['get_world_ranking_at_week']=df_world_ranking_at_week
+                df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_player_tournament_results_from_starting_week,df_ranking_over_weeks,type_ranking,df_world_ranking_at_week)
                 #On sauvegarde l'état
                 st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated
             #On crée la figure initiale pour 2022
@@ -198,7 +204,9 @@ with tab1:
         df_player_tournament_results = st.session_state['df_player_tournament_results']
         df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
         type_ranking = st.session_state['type_ranking']
-        df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking)
+        #On récupère le classement mondial
+        df_world_ranking_at_week = st.session_state['get_world_ranking_at_week']
+        df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking,df_world_ranking_at_week)
         #On sauvegarde l'état
         st.session_state['df_tournament_simulated'] = df_tournament_simulated
         st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated
@@ -281,7 +289,9 @@ with tab1:
             df_player_tournament_results = st.session_state['df_player_tournament_results']
             df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
             type_ranking = st.session_state['type_ranking']
-            df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking)
+            #On récupère le classement mondial
+            df_world_ranking_at_week = st.session_state['get_world_ranking_at_week']
+            df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking,df_world_ranking_at_week)
             #On sauvegarde l'état
             st.session_state['df_tournament_simulated'] = df_tournament_simulated
             st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated
@@ -311,7 +321,9 @@ with tab1:
         df_player_tournament_results = st.session_state['df_player_tournament_results']
         df_ranking_over_weeks = st.session_state['df_ranking_over_weeks']
         type_ranking = st.session_state['type_ranking']
-        df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking)
+        #On récupère le classement mondial
+        df_world_ranking_at_week = st.session_state['get_world_ranking_at_week']
+        df_ranking_over_weeks_simulated = get_ranking_over_weeks_simulated(df_player_tournament_results,df_tournament_simulated,df_ranking_over_weeks,type_ranking,df_world_ranking_at_week)
         #On sauvegarde l'état
         st.session_state['df_tournament_simulated'] = df_tournament_simulated
         st.session_state['df_ranking_over_weeks_simulated'] = df_ranking_over_weeks_simulated

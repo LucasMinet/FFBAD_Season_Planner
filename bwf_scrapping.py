@@ -33,7 +33,7 @@ def get_tournament_list_men_singles(playerId,player_name,week_id):
                     year = cols[1].text.strip().split('-')[0]
                     week = cols[1].text.strip().split('-')[1]
                     tournament_name = cols[0].text.strip()
-                    print(tournament_name)
+
                     if year == '2022':
                         details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
                         week = details_tournament['Week'].iloc[0]
@@ -337,5 +337,54 @@ def get_race_paris_2024_men_singles(last_week):
     df_race_men_singles.to_excel('./RACE_TO_PARIS/Men_Singles_Race_to_Paris.xlsx',index=False)
 
     return df_race_men_singles
+
+
+def get_world_ranking_at_week(week,type_ranking):
+
+    world_ranking = []
+    for page in ['1','2']:
+        if type_ranking=='men_singles':
+            category = "472"
+        elif type_ranking=='women_singles':
+            category = "473"
+        elif type_ranking=='men_doubles':
+            category = "474"
+        elif type_ranking=='women_doubles':
+            category = "475"
+        elif type_ranking=='mixed_doubles':
+            category = "476"
+            
+        url = "https://bwf.tournamentsoftware.com/ranking/category.aspx?id="+week+"&category="+category+"&C"+category+"FOC=&p="+page+"&ps=100"
+
+        response = requests.get(url)
+        content = response.text
+
+        soup = bs.BeautifulSoup(content, 'html.parser')
+
+        table = soup.find('table', attrs={'class':'ruler'})
+        table_rows = table.find_all('tr')
+
+
+
+        for tr in table_rows:
+            cols = tr.find_all('td')
+            if len(cols) >= 4:
+                #0:rank, 1: previous rank, 3: country 3 letters, 4: player, 6: memberId, 7: Points, 8: Tournaments, 9: Confederation, 10: country
+                try:
+                    previous_rank = cols[1].get('title').split('Previous rank: ')[1]
+                except:
+                    previous_rank = None
+                link = cols[4].find('a').get('href')
+                world_ranking.append([cols[0].text,previous_rank,cols[3].text,cols[4].text.split('] ')[1],cols[6].text,cols[7].text,cols[8].text,cols[9].text,cols[10].text,link.split('&player=')[1]])
+
+
+    df_world_ranking = pd.DataFrame(world_ranking,columns=['Rank','Previous Rank','Short Country','Player','MemberId','Points','Tournaments','Confederation','Country','PlayerId'])
+
+    df_world_ranking['Rank'] = df_world_ranking['Rank'].astype('int')
+    df_world_ranking['Points'] = df_world_ranking['Points'].astype('int')
+    df_world_ranking = df_world_ranking.sort_values(by=['Rank'], ascending=True)
+    df_world_ranking.reset_index(drop=True,inplace=True)
+
+    return df_world_ranking
 
 

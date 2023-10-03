@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-
-
 #On initialise les dataframe avec la liste des tournois
 df_2022_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2022_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
 df_2023_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2023_BWF_TOURNAMENTS_LIST_WITH_DISTRIBUTION_AND_KEY_DATES_AND_MATCHING.xlsx")
@@ -12,8 +10,9 @@ df_2023_tournaments_list = pd.read_excel("./BWF_TOURNAMENTS/2023_BWF_TOURNAMENTS
 df_estimation_ranking_all = pd.read_excel("./averaged_points_ranking_all.xlsx",['men_singles','women_singles','men_doubles','women_doubles','mixed_doubles'])
 
 #Fonction qui va estimer le classement du joueur en fonction des classements des années 2018,2019,2020,2023
-def estimate_ranking(total_points,type_ranking):
-    list_ranking = df_estimation_ranking_all[type_ranking][df_estimation_ranking_all[type_ranking]['year']==2023].groupby('Rank')['mean_points'].mean().values
+def estimate_ranking(total_points,type_ranking,df_world_ranking_at_week):
+
+    list_ranking = df_world_ranking_at_week['Points'].values
     closest_value = min(list_ranking, key=lambda x:abs(x-total_points))
     ranking = (np.where(list_ranking == closest_value)[0]+1)[0]
 
@@ -224,7 +223,7 @@ def get_world_ranking(df_player_tournaments_results):
     return df_player_tournaments_results
 
 #Fonction qui va renvoyer l'évolution du classement au fur et à mesure des semaines sans simulation, qui sera utilisé pour la viz'
-def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
+def get_ranking_over_weeks(df_player_tournaments_results,type_ranking,df_world_ranking_at_week):
     #On récupère les catégories de tournois
     df_player_tournaments_results = get_category_tournaments(df_player_tournaments_results,df_2022_tournaments_list)
     df_player_tournaments_results = df_player_tournaments_results.sort_values(by=['Week'], ascending=True)
@@ -240,9 +239,10 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
 
     df_week_ranking = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking','Points to Top'])
 
+
     for week in range(1,min_week+1):
         points[week-1] = total_points
-        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking,df_world_ranking_at_week)
         df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
             
     for week in range(min_week+1,max_week+2):
@@ -250,7 +250,7 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
         df_player_tournaments_results_simulated = get_world_ranking(df_player_tournaments_results_simulated)
         total_points = df_player_tournaments_results_simulated.loc[df_player_tournaments_results_simulated['Calculation']==True,'Points'].sum()
         points[week-1] = total_points
-        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking,df_world_ranking_at_week)
         df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
         
         df_week = df_player_tournaments_results[df_player_tournaments_results["Week"]==week-1]
@@ -261,7 +261,7 @@ def get_ranking_over_weeks(df_player_tournaments_results,type_ranking):
             
     for week in range(max_week+2,53):
         points[week-1] = 0
-        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking,df_world_ranking_at_week)
         df_week_ranking.loc[len(df_week_ranking)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
 
     return df_week_ranking
@@ -304,7 +304,7 @@ def get_viz_ranking(df_week_ranking,year,name):
     return fig
 
 #Fonction qui va renvoyer l'évolution du classement au fur et à mesure des semaines sans simulation, qui sera utilisé pour la viz'
-def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament_simulated,df_week_ranking,type_ranking):
+def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament_simulated,df_week_ranking,type_ranking,df_world_ranking_at_week):
     #On regarde la catégorie du tournois
     df_tournament_simulated = df_tournament_simulated.sort_values(by=['Week'], ascending=True)
     df_tournament_simulated.reset_index(drop=True,inplace=True)
@@ -319,10 +319,11 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
 
     df_week_ranking_simulated = pd.DataFrame(columns = ['Week','Tournament','Result','Points Earned','Total Ranking Points','Estimated Ranking','Points to Top'])
 
+
     #On a le même nombre de points que sans les tournois ajoutés jusqu'à la semaine du premier tournoi ajouté
     for week in range(1,min_week+1):
         points[week-1] = df_week_ranking['Total Ranking Points'].iloc[week-1]
-        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking,df_world_ranking_at_week)
         df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
 
     #On simule chaque semaine et on récupère le nombre de points après chaque semaine
@@ -331,7 +332,7 @@ def get_ranking_over_weeks_simulated(df_player_tournaments_results,df_tournament
         df_player_tournaments_results_simulated = get_world_ranking(df_player_tournaments_results_simulated)
         total_points = df_player_tournaments_results_simulated.loc[df_player_tournaments_results_simulated['Calculation']==True,'Points'].sum()
         points[week-1] = total_points
-        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking)
+        estimate_rank, distance_to_rank = estimate_ranking(points[week-1],type_ranking,df_world_ranking_at_week)
         df_week_ranking_simulated.loc[len(df_week_ranking_simulated)]=[week,"No Tournament","",0,points[week-1],estimate_rank,distance_to_rank]
         
         df_week = df_player_tournaments_results_simulated[df_player_tournaments_results_simulated["Week"]==week-1]
