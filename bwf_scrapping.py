@@ -38,8 +38,13 @@ def get_tournament_list_men_singles(playerId,player_name,week_id):
                         details_tournament = df_2022_tournaments_list[df_2022_tournaments_list['Tournament']==tournament_name]
                         week = details_tournament['Week'].iloc[0]
                     elif year == '2023':
-                        details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
-                        week = details_tournament['Week'].iloc[0]
+                        print(tournament_name)
+                        if tournament_name=="Chengdu 2021 FISU World University Games (Individual)" or tournament_name=="Chengdu 2021 FISU World University Games (Team)":
+                            week = 31
+                        else:
+                            details_tournament = df_2023_tournaments_list[df_2023_tournaments_list['Tournament']==tournament_name]
+                            print(details_tournament)
+                            week = details_tournament['Week'].iloc[0]
 
                     player_tournaments_results.append([year,week,tournament_name,cols[2].text.strip(),cols[3].text.strip(),used_for_calculation,link_to_matchs])
 
