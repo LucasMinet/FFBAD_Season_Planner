@@ -58,7 +58,6 @@ with st.sidebar:
         options_xd = df_french_players_xd['Player1'].values + " / " + df_french_players_xd["Player2"]
         selected_players = st.selectbox(label="Choose a Pair",options=options_xd)
 
-
     #On choisi la semaine de début de simulation
     if 'df_options_weeks' not in st.session_state:
         df_options_weeks = get_world_ranking_weeks()
